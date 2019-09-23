@@ -19,7 +19,7 @@ export I_MPI_HYDRA_BOOTSTRAP_EXEC=pbs_tmrsh
 
 export KMP_AFFINITY=granularity=fine,compact,1,0;
 
-basedir=/homes/cx2/zeno_async
+basedir=/home/user/zeno_async
 logdir=$basedir/results
 
 # training data

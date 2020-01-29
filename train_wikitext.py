@@ -352,7 +352,7 @@ for epoch in range(args.epochs):
                 if param.grad_req != 'null':
                     param_square = param_square + param.grad().square().sum()
                     zeno_param_square = zeno_param_square + zeno_param.grad().square().sum()
-            c = math.sqrt( zeno_param_square.asscalar() / param_square.asscalar() )
+            c = min(math.sqrt( zeno_param_square.asscalar() / param_square.asscalar() ), 1.0)
             for param in net.collect_params().values():
                 if param.grad_req != 'null':
                     grad = param.grad()

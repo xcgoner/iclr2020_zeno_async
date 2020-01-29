@@ -236,7 +236,9 @@ sum_delay = 0
 tic = time.time()
 # reset optimizer
 best_val = float("Inf")
+prev_val = float("Inf")
 trainer = gluon.Trainer(net.collect_params(), optimizer, optimizer_params)
+lr_decay_counter = 0
 for epoch in range(args.epochs):
 
     # # lr decay
@@ -424,8 +426,13 @@ for epoch in range(args.epochs):
 
         if val_L < best_val:
             best_val = val_L
+            lr_decay_counter = 0
         else:
+            lr_decay_counter += 1
+        
+        if lr_decay_counter == 2:
             lr *= 0.25
+
 
 
 

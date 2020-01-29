@@ -21,8 +21,8 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--batchsize", type=int, help="batchsize", default=20)
-parser.add_argument("--epochs", type=int, help="number of epochs", default=100)
-parser.add_argument("--interval", type=int, help="log interval (epochs)", default=10)
+parser.add_argument("--epochs", type=int, help="number of epochs", default=40)
+parser.add_argument("--interval", type=int, help="log interval (epochs)", default=1)
 parser.add_argument("--lr", type=float, help="learning rate", default=20)
 parser.add_argument("--lr-decay", type=float, help="lr decay rate", default=0.5)
 parser.add_argument("--lr-decay-epoch", type=str, help="lr decay epoch", default='2000')
@@ -157,7 +157,7 @@ parameters = net.collect_params().values()
 # warmup
 print('warm up', flush=True)
 trainer = gluon.Trainer(net.collect_params(), optimizer, optimizer_params)
-trainer.set_learning_rate(1)
+trainer.set_learning_rate(20)
 # train    
 hiddens = [net.begin_state(batch_size//len(context), func=mx.nd.zeros, ctx=ctx)
             for ctx in context]
@@ -181,6 +181,7 @@ for i, data in enumerate(train_data_list):
     gluon.utils.clip_global_norm(grads, grad_clip)
 
     trainer.step(1)
+    break
 
 nd.waitall()
 
@@ -219,7 +220,7 @@ elif args.byz_test == 'zeno++':
         L.backward()
         grads = [p.grad(x.context) for p in parameters for x in data_list]
         gluon.utils.clip_global_norm(grads, grad_clip)
-        trainer.step(1)
+        zeno_trainer.step(1)
         break
     nd.waitall()
 
@@ -329,8 +330,6 @@ for epoch in range(args.epochs):
                         weight = param.data()
                         weight[:] = param_prev
                 # compute g_r
-                zeno_trainer = gluon.Trainer(zeno_net.collect_params(), optimizer, optimizer_params)
-                zeno_trainer.set_learning_rate(lr) 
                 val_data_pair = random.choice(val_data_list)
                 data_list = val_data_pair[0]
                 target_list = val_data_pair[1]

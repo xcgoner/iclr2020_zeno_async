@@ -41,7 +41,7 @@ parser.add_argument("--byz-test", type=str, help="none, kardam, or zeno++", choi
 parser.add_argument("--rho", type=float, help="rho of Zeno++", default=0)
 parser.add_argument("--epsilon", type=float, help="epsilon of Zeno++", default=0)
 parser.add_argument("--zeno-delay", type=int, help="delay of Zeno++", default=10)
-parser.add_argument("--zeno-batchsize", type=int, help="batchsize of Zeno++", default=128)
+parser.add_argument("--zeno-batchsize", type=int, help="batchsize of Zeno++", default=20)
 
  
 args = parser.parse_args()
@@ -75,12 +75,12 @@ train_dataset, val_dataset, test_dataset = [
 ]
 
 # Extract the vocabulary and numericalize with "Counter"
-vocab = nlp.Vocab(
+vocab_raw = nlp.Vocab(
     nlp.data.Counter(train_dataset), padding_token=None, bos_token=None)
 
 # Batchify for BPTT
 bptt_batchify = nlp.data.batchify.CorpusBPTTBatchify(
-    vocab, bptt, batch_size, last_batch='discard')
+    vocab_raw, bptt, batch_size, last_batch='discard')
 train_data, val_data, test_data = [
     bptt_batchify(x) for x in [train_dataset, val_dataset, test_dataset]
 ]
@@ -89,7 +89,7 @@ context = [mx.cpu()]
 
 model_name = args.model
 
-net, vocab = nlp.model.get_model(model_name, vocab=vocab, dataset_name=None)
+net, vocab = nlp.model.get_model(model_name, vocab=vocab_raw, dataset_name=None)
 
 # initialization
 net.initialize(mx.init.Xavier(), ctx=context)
@@ -194,7 +194,7 @@ if args.byz_test == 'kardam':
     lips_list = []
     quantile_q = (args.nworkers-args.b) * 1.0 / args.nworkers
 elif args.byz_test == 'zeno++':
-    zeno_net, _ = nlp.model.get_model(model_name, vocab=vocab, dataset_name=None)
+    zeno_net, _ = nlp.model.get_model(model_name, vocab=vocab_raw, dataset_name=None)
     zeno_net.initialize(mx.init.Xavier(), ctx=context)
     zeno_trainer = gluon.Trainer(zeno_net.collect_params(), optimizer, optimizer_params)
     zeno_trainer.set_learning_rate(0.001)
@@ -245,6 +245,7 @@ for epoch in range(args.epochs):
     trainer.set_learning_rate(lr)     
 
     # training
+    random.shuffle(train_data_list)
     hiddens = [net.begin_state(batch_size//len(context), func=mx.nd.zeros, ctx=ctx)
                     for ctx in context]
     for i, data in enumerate(train_data_list):

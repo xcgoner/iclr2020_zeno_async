@@ -432,6 +432,7 @@ for epoch in range(args.epochs):
         
         if lr_decay_counter == 2:
             lr *= 0.25
+            lr_decay_counter = 0
 
 
 

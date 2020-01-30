@@ -31,6 +31,7 @@ parser.add_argument("--log", type=str, help="dir of the log file", default='trai
 parser.add_argument("--nworkers", type=int, help="number of workers", default=20)
 parser.add_argument("--nbyz", type=int, help="number of Byzantine workers", default=2)
 parser.add_argument("--byz-type", type=str, help="type of Byzantine workers", choices=['none', 'signflip'], default='signflip')
+parser.add_argument("--b", type=float, help="hyperparameter of Kardam", default=0)
 parser.add_argument("--byz-param-a", type=float, help="hyperparameter of Byzantine workers", default=10)
 parser.add_argument("--byz-param-b", type=float, help="hyperparameter of Byzantine workers", default=10)
 parser.add_argument("--byz-param-c", type=float, help="hyperparameter of Byzantine workers", default=10)
@@ -426,13 +427,18 @@ for epoch in range(args.epochs):
 
         if val_L < best_val:
             best_val = val_L
-            lr_decay_counter = 0
         else:
-            lr_decay_counter += 1
-        
-        if lr_decay_counter == 2:
             lr *= 0.25
-            lr_decay_counter = 0
+
+        # if val_L < best_val:
+        #     best_val = val_L
+        #     lr_decay_counter = 0
+        # else:
+        #     lr_decay_counter += 1
+        
+        # if lr_decay_counter == 2:
+        #     lr *= 0.25
+        #     lr_decay_counter = 0
 
 
 

@@ -359,7 +359,7 @@ for epoch in range(args.epochs):
             for param in net.collect_params().values():
                 if param.grad_req != 'null':
                     grad = param.grad()
-                    grad[:] = grad * c
+                    grad[:] *= c
             # compute zeno score
             zeno_innerprod = 0
             zeno_square = param_square

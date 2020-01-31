@@ -367,6 +367,7 @@ for epoch in range(args.epochs):
                 if param.grad_req != 'null':
                     zeno_innerprod = zeno_innerprod + nd.sum(param.grad() * zeno_param.grad())
             score = args.lr * (zeno_innerprod.asscalar()) - zeno_rho * (zeno_square.asscalar()) + zeno_epsilon
+            # if positive_flag and score > 0 or not positive_flag and score < 0:
             if positive_flag and score > 0:
                 print('score={}, true byz: {}'.format(score, positive_flag))
             if score >= 0:

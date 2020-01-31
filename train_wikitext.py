@@ -368,8 +368,8 @@ for epoch in range(args.epochs):
                     zeno_innerprod = zeno_innerprod + nd.sum(param.grad() * zeno_param.grad())
             score = args.lr * (zeno_innerprod.asscalar()) - zeno_rho * (zeno_square.asscalar()) + zeno_epsilon
             # if positive_flag and score > 0 or not positive_flag and score < 0:
-            if positive_flag and score > 0:
-                print('score={}, true byz: {}'.format(score, positive_flag))
+            # if positive_flag and score > 0:
+            #     print('score={}, true byz: {}'.format(score, positive_flag))
             if score >= 0:
                 byz_flag = False
                 accept_counter = accept_counter + 1
@@ -423,7 +423,9 @@ for epoch in range(args.epochs):
     if  epoch % args.interval == 0 or epoch == args.iterations-1:
         val_L = evaluate(net, test_data, batch_size, context[0])
 
-        logger.info('[Epoch %d] test: loss=%f, ppl=%f, fp=%f, fn=%f, lr=%f, time=%f' % (epoch, val_L, math.exp(val_L), false_positive/negative, false_negative/positive, trainer.learning_rate, time.time()-tic))
+        val_L_clipped = min(val_L, 40)
+
+        logger.info('[Epoch %d] test: loss=%f, ppl=%f, fp=%f, fn=%f, lr=%f, time=%f' % (epoch, val_L_clipped, math.exp(val_L_clipped), false_positive/negative, false_negative/positive, trainer.learning_rate, time.time()-tic))
         tic = time.time()
         
         nd.waitall()

@@ -434,6 +434,7 @@ for epoch in range(args.epochs):
             best_val = val_L
         else:
             lr *= 0.25
+            lr = max(lr, 1.25)
 
         # if val_L < best_val:
         #     best_val = val_L
